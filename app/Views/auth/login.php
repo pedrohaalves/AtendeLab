@@ -1,3 +1,9 @@
+<?php
+// Certifique-se de que a variável $baseUrl esteja disponível
+// Se este arquivo for chamado por um controller que injeta o layout, 
+// a variável já deve existir. Caso contrário, defina-a aqui ou via config.
+$baseUrl = $baseUrl ?? '/atendelab/public/';
+?>
 <!doctype html>
 <html lang="pt-br">
 <head>
@@ -20,25 +26,17 @@
 
                         <?php if (!empty($erro)): ?>
                             <div class="alert alert-danger">
-                                <?= htmlspecialchars(
-                                    $erro,
-                                    ENT_QUOTES,
-                                    'UTF-8'
-                                ) ?>
+                                <?= htmlspecialchars($erro, ENT_QUOTES, 'UTF-8') ?>
                             </div>
                         <?php endif; ?>
 
                         <?php if (!empty($mensagem)): ?>
                             <div class="alert alert-success">
-                                <?= htmlspecialchars(
-                                    $mensagem,
-                                    ENT_QUOTES,
-                                    'UTF-8'
-                                ) ?>
+                                <?= htmlspecialchars($mensagem, ENT_QUOTES, 'UTF-8') ?>
                             </div>
                         <?php endif; ?>
 
-                        <form method="POST" action="?controller=auth&action=entrar">
+                        <form method="POST" action="<?= $baseUrl ?>?controller=auth&action=entrar">
                             <div class="mb-3">
                                 <label for="email" class="form-label">E-mail</label>
                                 <input type="email" name="email" id="email" class="form-control" required>
@@ -56,6 +54,5 @@
             </div>
         </div>
     </div>
-
 </body>
 </html>

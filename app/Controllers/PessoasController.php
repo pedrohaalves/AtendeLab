@@ -64,7 +64,7 @@ class PessoasController
         }
 
         try {
-            $sql = 'INSERT INTO pessoas (nome, cpf, email, telefone) VALUES (:nome, :cpf, :email, :telefone)';
+            $sql = 'INSERT INTO pessoas (nome, cpf, email, telefone, status) VALUES (:nome, :cpf, :email, :telefone, "ativo")';
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':nome', $nome);
             $stmt->bindValue(':cpf', $cpf);
@@ -80,7 +80,7 @@ class PessoasController
             
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['erro' => 'Erro ao cadastrar pessoa. Verifique se o CPF/E-mail já existe.']);
+            echo json_encode(['erro' => 'Erro ao cadastrar pessoa.']);
         }
     }
 
@@ -118,7 +118,7 @@ class PessoasController
         }
     }
 
-    public function excluir(): void
+    public function inativar(): void
     {
         header('Content-Type: application/json; charset=utf-8');
         
@@ -131,16 +131,16 @@ class PessoasController
         }
 
         try {
-            $sql = 'DELETE FROM pessoas WHERE id = :id';
+            $sql = 'UPDATE pessoas SET status = "inativo" WHERE id = :id';
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
             
-            echo json_encode(['mensagem' => 'Pessoa excluída com sucesso.'], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['mensagem' => 'Pessoa inativada com sucesso.'], JSON_UNESCAPED_UNICODE);
             
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['erro' => 'Erro ao excluir. Pode haver um atendimento vinculado a esta pessoa.']);
+            echo json_encode(['erro' => 'Erro ao inativar pessoa.']);
         }
     }
 }
