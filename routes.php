@@ -76,10 +76,10 @@ elseif ($controller == 'pessoas') {
     
     switch ($action) {
         case 'listar': $pessoasController->listar(); break;
-        case 'buscar': $pessoasController->buscarPorId(); break;
+        case 'buscarPorId': $pessoasController->buscarPorId(); break; 
         case 'criar': $pessoasController->criar(); break;
         case 'atualizar': $pessoasController->atualizar(); break;
-        case 'inativar': $pessoasController->excluir(); break; // Alterado de excluir para inativar
+        case 'inativar': $pessoasController->inativar(); break;
         default:
             http_response_code(404);
             echo 'Ação de pessoas não encontrada.';
@@ -105,24 +105,18 @@ elseif ($controller == 'tipos_atendimentos') {
             break;
     }
 }
-// -------------------------------------------------------------
-// ROTA: ATENDIMENTOS
-// -------------------------------------------------------------
 elseif ($controller == 'atendimentos') {
     exigirAutenticacao();
     $atendimentosController = new AtendimentosController();
     
     switch ($action) {
-        case 'listar': $atendimentosController->listar(); break;
-        case 'buscar': $atendimentosController->visualizar(); break;
-        case 'criar': $atendimentosController->criar(); break;
-        case 'atualizar_status': $atendimentosController->atualizarStatus(); break;
-        default:
-            http_response_code(404);
-            echo 'Ação de atendimentos não encontrada.';
-            break;
-    }
-} 
+        case 'listar':    $atendimentosController->listar(); break;
+        case 'buscar':    $atendimentosController->visualizar(); break; // Adicione esta linha
+        case 'criar':     $atendimentosController->criar(); break;
+        case 'atualizar': $atendimentosController->atualizar(); break;
+        case 'inativar':  $atendimentosController->inativar(); break;
+        default: /* ... */ }
+}
 // -------------------------------------------------------------
 // ROTA: FRONTEND (Renderização de Views)
 // -------------------------------------------------------------
@@ -143,6 +137,7 @@ elseif ($controller == 'frontend') {
             http_response_code(404);
             echo 'Página não encontrada.';
             break;
+            
     }
 }
 // -------------------------------------------------------------

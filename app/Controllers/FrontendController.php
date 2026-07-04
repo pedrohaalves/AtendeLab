@@ -2,7 +2,6 @@
 
 class FrontendController
 {
-    // Método privado para evitar repetição de código
     private function render(string $view, array $data = []): void
     {
         extract($data);
@@ -19,9 +18,10 @@ class FrontendController
         $this->render('pessoas/index');
     }
 
+    // Agora redireciona para a mesma página de atendimentos integrada
     public function tiposAtendimentos(): void
     {
-        $this->render('tipos_atendimentos/index');
+        $this->render('atendimentos/index');
     }
 
     public function atendimentos(): void
@@ -31,7 +31,6 @@ class FrontendController
 
     public function usuarios(): void
     {
-        // Verifica se o usuário é admin para acessar usuários
         if (($_SESSION['usuario']['perfil'] ?? '') !== 'admin') {
             echo "Acesso negado.";
             return;
