@@ -21,4 +21,4 @@ Este projeto tem como objetivo criar uma plataforma web acadêmica simples e efi
 - Cadastro de pessoas atendidas
 - Cadastro de tipos de atendimento
 - Registro de atendimentos
-- Relatórios
+
