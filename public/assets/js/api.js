@@ -1,5 +1,5 @@
 window.AtendeLabApi = (() => {
-    // Se o 404 persistir, tente ajustar o baseUrl para o caminho real da sua pasta
+    
     const baseUrl = '/atendelab/public/index.php'; 
 
     async function request(controller, action, { method = 'GET', query = {}, body = null } = {}) {

@@ -14,8 +14,7 @@ class PessoasController
     {
         header("Content-Type: application/json; charset=utf-8");
         
-        // Adicionado o campo 'status' aqui para o frontend exibir a cor correta
-        $sql = 'SELECT id, nome, cpf, email, telefone, observacao, status, criado_em FROM pessoas ORDER BY id DESC';
+        $sql = 'SELECT id, nome, cpf, email, telefone, observacao, perfil, status, criado_em FROM pessoas ORDER BY id DESC';
         $stmt = $this->pdo->query($sql);
         $pessoas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
@@ -33,8 +32,7 @@ class PessoasController
             return;
         }
 
-        // Adicionado o campo 'status' aqui também
-        $sql = 'SELECT id, nome, cpf, email, telefone, observacao, status, criado_em FROM pessoas WHERE id=:id';
+        $sql = 'SELECT id, nome, cpf, email, telefone, observacao, perfil, status, criado_em FROM pessoas WHERE id=:id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -59,6 +57,7 @@ class PessoasController
         $email = trim($_POST['email'] ?? '');
         $telefone = trim($_POST['telefone'] ?? '');
         $observacao = trim($_POST['observacao'] ?? '');
+        $perfil = trim($_POST['perfil'] ?? 'cliente');
         $criado_em = !empty($_POST['criado_em']) ? $_POST['criado_em'] : date('Y-m-d H:i:s');
 
         if ($nome === '') {
@@ -74,14 +73,15 @@ class PessoasController
         }
 
         try {
-            $sql = 'INSERT INTO pessoas (nome, cpf, email, telefone, observacao, criado_em, status) 
-                    VALUES (:nome, :cpf, :email, :telefone, :observacao, :criado_em, "ativo")';
+            $sql = 'INSERT INTO pessoas (nome, cpf, email, telefone, observacao, perfil, criado_em, status) 
+                    VALUES (:nome, :cpf, :email, :telefone, :observacao, :perfil, :criado_em, "ativo")';
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':nome', $nome);
             $stmt->bindValue(':cpf', $cpf);
             $stmt->bindValue(':email', $email);
             $stmt->bindValue(':telefone', $telefone);
             $stmt->bindValue(':observacao', $observacao);
+            $stmt->bindValue(':perfil', $perfil);
             $stmt->bindValue(':criado_em', $criado_em);
             $stmt->execute();
             
@@ -107,6 +107,7 @@ class PessoasController
         $email = trim($_POST['email'] ?? '');
         $telefone = trim($_POST['telefone'] ?? '');
         $observacao = trim($_POST['observacao'] ?? '');
+        $perfil = trim($_POST['perfil'] ?? 'cliente');
         $criado_em = !empty($_POST['criado_em']) ? $_POST['criado_em'] : date('Y-m-d H:i:s');
 
         if (!$id || $nome === '') {
@@ -123,7 +124,7 @@ class PessoasController
 
         try {
             $sql = 'UPDATE pessoas 
-                    SET nome = :nome, cpf = :cpf, email = :email, telefone = :telefone, observacao = :observacao, criado_em = :criado_em 
+                    SET nome = :nome, cpf = :cpf, email = :email, telefone = :telefone, observacao = :observacao, perfil = :perfil, criado_em = :criado_em 
                     WHERE id = :id';
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':nome', $nome);
@@ -131,6 +132,7 @@ class PessoasController
             $stmt->bindValue(':email', $email);
             $stmt->bindValue(':telefone', $telefone);
             $stmt->bindValue(':observacao', $observacao);
+            $stmt->bindValue(':perfil', $perfil);
             $stmt->bindValue(':criado_em', $criado_em);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();

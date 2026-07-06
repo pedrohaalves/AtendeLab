@@ -14,7 +14,7 @@ class TiposAtendimentosController
     {
         header("Content-Type: application/json; charset=utf-8");
         
-        $sql = 'SELECT id, descricao, status, criado_em FROM tipos_atendimentos ORDER BY id DESC';
+        $sql = 'SELECT id, descricao, atendente_id, status, criado_em FROM tipos_atendimentos ORDER BY id DESC';
         $stmt = $this->pdo->query($sql);
         $tipos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
@@ -32,7 +32,7 @@ class TiposAtendimentosController
             return;
         }
 
-        $sql = 'SELECT id, descricao, status, criado_em FROM tipos_atendimentos WHERE id=:id';
+        $sql = 'SELECT id, descricao, atendente_id, status, criado_em FROM tipos_atendimentos WHERE id=:id';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -54,6 +54,8 @@ class TiposAtendimentosController
         
         $descricao = trim($_POST['descricao'] ?? '');
         $status = trim($_POST['status'] ?? 'ativo');
+        $atendente_id = !empty($_POST['atendente_id']) ? $_POST['atendente_id'] : null;
+        $criado_em = !empty($_POST['criado_em']) ? $_POST['criado_em'] : date('Y-m-d H:i:s');
 
         if ($descricao === '') {
             http_response_code(400);
@@ -62,10 +64,13 @@ class TiposAtendimentosController
         }
 
         try {
-            $sql = 'INSERT INTO tipos_atendimentos (descricao, status) VALUES (:descricao, :status)';
+            $sql = 'INSERT INTO tipos_atendimentos (descricao, atendente_id, status, criado_em) 
+                    VALUES (:descricao, :atendente_id, :status, :criado_em)';
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':descricao', $descricao);
+            $stmt->bindValue(':atendente_id', $atendente_id);
             $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':criado_em', $criado_em);
             $stmt->execute();
             
             http_response_code(201);
@@ -87,6 +92,8 @@ class TiposAtendimentosController
         $id = isset($_POST['id']) ? filter_var($_POST['id'], FILTER_VALIDATE_INT) : false;
         $descricao = trim($_POST['descricao'] ?? '');
         $status = trim($_POST['status'] ?? 'ativo');
+        $atendente_id = !empty($_POST['atendente_id']) ? $_POST['atendente_id'] : null;
+        $criado_em = !empty($_POST['criado_em']) ? $_POST['criado_em'] : date('Y-m-d H:i:s');
 
         if (!$id || $descricao === '') {
             http_response_code(400);
@@ -95,10 +102,14 @@ class TiposAtendimentosController
         }
 
         try {
-            $sql = 'UPDATE tipos_atendimentos SET descricao = :descricao, status = :status WHERE id = :id';
+            $sql = 'UPDATE tipos_atendimentos 
+                    SET descricao = :descricao, atendente_id = :atendente_id, status = :status, criado_em = :criado_em 
+                    WHERE id = :id';
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':descricao', $descricao);
+            $stmt->bindValue(':atendente_id', $atendente_id);
             $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':criado_em', $criado_em);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
             

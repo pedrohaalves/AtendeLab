@@ -20,6 +20,7 @@ require __DIR__ . '/../layouts/header.php';
                         <th>Nome</th>
                         <th>CPF</th>
                         <th>Contato (E-mail/Tel)</th>
+                        <th>Perfil</th>
                         <th>Status</th>
                         <th>Ações</th>
                     </tr>
@@ -31,7 +32,7 @@ require __DIR__ . '/../layouts/header.php';
     </div>
 </div>
 
-<div id="modal-pessoa" class="modal" style="display:none; background: rgba(0,0,0,0.5); position:fixed; top:0; left:0; width:100%; height:100%; z-index: 1050; overflow-y: auto;">
+<div id="modal-pessoa" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content p-4">
             <h5 id="modal-titulo" class="mb-4">Cadastrar Pessoa</h5>
@@ -62,11 +63,19 @@ require __DIR__ . '/../layouts/header.php';
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label>Perfil</label>
+                        <select name="perfil" id="pessoa-perfil" class="form-control">
+                            <option value="cliente">Cliente</option>
+                            <option value="atendente">Atendente</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
                         <label>Data de Criação</label>
                         <input type="date" name="data_criacao" id="pessoa-data" class="form-control">
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label>Horário de Criação</label>
                         <input type="time" name="hora_criacao" id="pessoa-hora" class="form-control">
                     </div>
@@ -78,9 +87,12 @@ require __DIR__ . '/../layouts/header.php';
                     <textarea name="observacao" id="pessoa-observacao" class="form-control" rows="3"></textarea>
                 </div>
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Salvar</button>
-                    <button type="button" class="btn btn-secondary" onclick="fecharFormulario()">Cancelar</button>
+                <div class="d-flex justify-content-between">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="button" class="btn btn-secondary" onclick="fecharFormulario()">Cancelar</button>
+                    </div>
+                    <button type="button" class="btn btn-danger" id="btn-inativar" style="display: none;" onclick="inativarPessoa()">Inativar Pessoa</button>
                 </div>
             </form>
         </div>
@@ -89,8 +101,8 @@ require __DIR__ . '/../layouts/header.php';
 
 <script>
     const form = document.getElementById('form-pessoa');
+    let modalInstancia; 
 
-    // Máscaras de Input
     function mascaraCPF(i) {
         let v = i.value.replace(/\D/g, "");
         v = v.replace(/(\d{3})(\d)/, "$1.$2");
@@ -106,18 +118,25 @@ require __DIR__ . '/../layouts/header.php';
         i.value = v;
     }
 
-    // Carregar a Tabela
+    function formataPerfil(perfil) {
+        if (!perfil) return 'Cliente';
+        return perfil.charAt(0).toUpperCase() + perfil.slice(1);
+    }
+
     async function carregarPessoas() {
         const dados = await AtendeLabApi.get('pessoas', 'listar');
         const tbody = document.getElementById('tabela-pessoas');
         
         tbody.innerHTML = AtendeLabApi.toList(dados).map(p => {
-            // Exibe o email, se não tiver exibe o telefone
             let contato = p.email ? p.email : (p.telefone ? p.telefone : '<span class="text-muted">Sem contato</span>');
             
-            // Define o visual do Status
             let statusClass = p.status === 'inativo' ? 'bg-danger' : 'bg-success';
             let statusText = p.status === 'inativo' ? 'Inativo' : 'Ativo';
+            
+            // Cor do badge de perfil
+            let perfilClass = 'bg-secondary';
+            if (p.perfil === 'admin') perfilClass = 'bg-dark';
+            if (p.perfil === 'atendente') perfilClass = 'bg-info text-dark';
             
             return `
             <tr>
@@ -125,6 +144,7 @@ require __DIR__ . '/../layouts/header.php';
                 <td>${AtendeLabApi.escape(p.nome)}</td>
                 <td>${p.cpf ? p.cpf : '-'}</td>
                 <td>${contato}</td>
+                <td><span class="badge ${perfilClass}">${formataPerfil(p.perfil)}</span></td>
                 <td><span class="badge ${statusClass}">${statusText}</span></td>
                 <td>
                     <button class="btn btn-sm btn-primary" onclick="editarPessoa(${p.id})">Editar</button>
@@ -134,28 +154,30 @@ require __DIR__ . '/../layouts/header.php';
         }).join('');
     }
 
-   async function editarPessoa(id) {
-    try {
-        // Ação alterada para buscarPorId para bater com a rota
-        const pessoa = await AtendeLabApi.get('pessoas', 'buscarPorId', { id: id });
-        
-        // Ajustado para o ID correto do seu input hidden (pessoa-id)
-        document.getElementById('pessoa-id').value = pessoa.id; 
-        document.getElementById('pessoa-nome').value = pessoa.nome;
-        document.getElementById('pessoa-cpf').value = pessoa.cpf || '';
-        document.getElementById('pessoa-email').value = pessoa.email || '';
-        document.getElementById('pessoa-telefone').value = pessoa.telefone || '';
-        document.getElementById('pessoa-observacao').value = pessoa.observacao || '';
-        
-        // O restante da função segue igual...
-        const modal = new bootstrap.Modal(document.getElementById('modal-pessoa'));
-        modal.show();
-    } catch (error) {
-        AtendeLabApi.showAlert('alerta', error.message, 'danger');
+    async function editarPessoa(id) {
+        try {
+            const pessoa = await AtendeLabApi.get('pessoas', 'buscarPorId', { id: id });
+            abrirFormulario(pessoa); 
+        } catch (error) {
+            AtendeLabApi.showAlert('alerta', error.message, 'danger');
+        }
     }
-}
 
-    // Submeter o Formulário
+    async function inativarPessoa() {
+        const id = document.getElementById('pessoa-id').value;
+        if (!id) return;
+        if (!confirm('Deseja realmente inativar esta pessoa?')) return;
+
+        try {
+            await AtendeLabApi.post('pessoas', 'inativar', { id: id });
+            fecharFormulario();
+            AtendeLabApi.showAlert('alerta', 'Pessoa inativada com sucesso!', 'success');
+            await carregarPessoas();
+        } catch (e) {
+            AtendeLabApi.showAlert('alerta-modal', e.message, 'danger');
+        }
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -175,7 +197,6 @@ require __DIR__ . '/../layouts/header.php';
 
         const formData = new FormData(form);
         
-        // Junta a data e a hora novamente se ambas foram preenchidas para mandar pro banco
         const dataStr = document.getElementById('pessoa-data').value;
         const horaStr = document.getElementById('pessoa-hora').value;
         if (dataStr && horaStr) {
@@ -194,10 +215,8 @@ require __DIR__ . '/../layouts/header.php';
         }
     });
 
-    // Controle do Modal
     function abrirFormulario(pessoa = null) {
         document.getElementById('alerta-modal').innerHTML = ''; 
-        document.getElementById('modal-pessoa').style.display = 'block';
         
         if (pessoa) {
             document.getElementById('modal-titulo').innerText = 'Editar Pessoa';
@@ -207,27 +226,45 @@ require __DIR__ . '/../layouts/header.php';
             document.getElementById('pessoa-email').value = pessoa.email || '';
             document.getElementById('pessoa-telefone').value = pessoa.telefone || '';
             document.getElementById('pessoa-observacao').value = pessoa.observacao || '';
+            document.getElementById('pessoa-perfil').value = pessoa.perfil || 'cliente';
             
-            // Separando "YYYY-MM-DD HH:MM:SS" em Data e Hora
+            document.getElementById('btn-inativar').style.display = 'block';
+            
             if(pessoa.criado_em) {
                 const partes = pessoa.criado_em.split(' ');
                 if (partes.length === 2) {
-                    document.getElementById('pessoa-data').value = partes[0]; // YYYY-MM-DD
-                    document.getElementById('pessoa-hora').value = partes[1].substring(0, 5); // HH:MM
+                    document.getElementById('pessoa-data').value = partes[0]; 
+                    document.getElementById('pessoa-hora').value = partes[1].substring(0, 5); 
                 }
+            } else {
+                document.getElementById('pessoa-data').value = '';
+                document.getElementById('pessoa-hora').value = '';
             }
         } else {
+            form.reset();
+            document.getElementById('pessoa-id').value = '';
             document.getElementById('modal-titulo').innerText = 'Cadastrar Pessoa';
+            document.getElementById('pessoa-perfil').value = 'cliente'; // Padrão
+            document.getElementById('pessoa-data').value = '';
+            document.getElementById('pessoa-hora').value = '';
+            
+            document.getElementById('btn-inativar').style.display = 'none';
         }
+
+        modalInstancia.show();
     }
 
     function fecharFormulario() {
         form.reset();
         document.getElementById('pessoa-id').value = '';
-        document.getElementById('modal-pessoa').style.display = 'none';
+        modalInstancia.hide();
     }
 
-    document.addEventListener('DOMContentLoaded', carregarPessoas);
+    document.addEventListener('DOMContentLoaded', () => {
+        const modalElement = document.getElementById('modal-pessoa');
+        modalInstancia = new bootstrap.Modal(modalElement);
+        carregarPessoas();
+    });
 </script>
 
 <?php require __DIR__ . '/../layouts/footer.php'; ?>

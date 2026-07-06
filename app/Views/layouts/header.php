@@ -1,6 +1,5 @@
 <?php
-// Certifique-se de que o caminho do baseUrl está correto para o seu projeto
-// Se o seu projeto está em htdocs/atendelab, o base geralmente é '/atendelab/'
+
 $baseUrl = '/atendelab/';
 ?>
 <!doctype html>

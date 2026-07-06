@@ -18,7 +18,7 @@ class FrontendController
         $this->render('pessoas/index');
     }
 
-    // Agora redireciona para a mesma página de atendimentos integrada
+    // redireciona para a mesma página de atendimentos integrada
     public function tiposAtendimentos(): void
     {
         $this->render('atendimentos/index');

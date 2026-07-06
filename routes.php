@@ -98,7 +98,7 @@ elseif ($controller == 'tipos_atendimentos') {
         case 'buscar': $tiposController->buscarPorId(); break;
         case 'criar': $tiposController->criar(); break;
         case 'atualizar': $tiposController->atualizar(); break;
-        case 'inativar': $tiposController->excluir(); break; // Alterado de excluir para inativar
+        case 'inativar': $tiposController->inativar(); break; // <-- Corrigido aqui (de excluir para inativar)
         default:
             http_response_code(404);
             echo 'Ação de tipos de atendimentos não encontrada.';

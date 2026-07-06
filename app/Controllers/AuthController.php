@@ -91,7 +91,6 @@ class AuthController
         require __DIR__ . '/../Views/dashboard/index.php';
     }
 
-    // NOVO MÉTODO: Responsável por encerrar a sessão
     public function logout(): void
     {
         if (session_status() === PHP_SESSION_NONE) {

@@ -1,7 +1,5 @@
 <?php
-// Certifique-se de que a variável $baseUrl esteja disponível
-// Se este arquivo for chamado por um controller que injeta o layout, 
-// a variável já deve existir. Caso contrário, defina-a aqui ou via config.
+
 $baseUrl = $baseUrl ?? '/atendelab/public/';
 ?>
 <!doctype html>

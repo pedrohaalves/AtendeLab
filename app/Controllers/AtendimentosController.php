@@ -14,7 +14,6 @@ class AtendimentosController
     {
         header("Content-Type: application/json; charset=utf-8");
         
-        // Adicionados os campos necessários para preencher o formulário de edição
         $sql = 'SELECT a.id, a.data_atendimento, a.horario_atendimento, a.descricao, a.observacao_final, a.status, 
                        a.pessoa_id, a.tipo_atendimento_id,
                        u.nome AS atendente_nome, 
@@ -49,7 +48,7 @@ class AtendimentosController
         $usuario_id = $_SESSION['usuario']['id'] ?? null;
         $status = 'aberto'; 
 
-        // RN do Professor: observacao_final passa a ser obrigatória
+       
         if (!$usuario_id || !$pessoa_id || !$tipo_atendimento_id || empty($descricao) || empty($observacao_final)) {
             http_response_code(400);
             echo json_encode(['erro' => 'Todos os campos, incluindo a observação final, são obrigatórios.']);
@@ -80,7 +79,6 @@ class AtendimentosController
         }
     }
 
-    // NOVO MÉTODO: Atualizar Atendimento
     public function atualizar(): void
     {
         header('Content-Type: application/json; charset=utf-8');
